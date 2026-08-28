@@ -1,0 +1,20 @@
+aws_region        = "us-east-1"
+availability_zone = "us-east-1a"
+
+# Replace with your public IP (/32). Default in variables.tf is 0.0.0.0/0.
+grafana_allowed_cidrs = ["203.0.113.10/32"]
+ssh_allowed_cidrs     = ["203.0.113.10/32"]
+# key_name            = "my-existing-keypair"
+
+prometheus_instance_type = "t3.small"
+grafana_instance_type    = "t3.small"
+loki_instance_type       = "t3.small"
+tempo_instance_type      = "t3.small"
+
+prometheus_volume_size_gb = 30
+grafana_volume_size_gb    = 20
+loki_volume_size_gb       = 30
+tempo_volume_size_gb      = 30
+
+grafana_admin_user     = "admin"
+grafana_admin_password = "replace-with-a-long-unique-password"
