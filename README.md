@@ -97,7 +97,7 @@ flowchart TD
 │       └── tempo.yml
 ├── docs/
 ├── terraform/
-│   ├── compute.tf                 # EC2 instances, EBS volumes & bootstrap logic
+│   ├── ec2.tf                     # EC2 instances, EBS volumes & bootstrap logic
 │   ├── iam.tf                     # IAM Roles, SSM policy & Instance Profile
 │   ├── network.tf                 # VPC, Subnet, IGW & Routing
 │   ├── outputs.tf                 # Public URLs and internal IPs
