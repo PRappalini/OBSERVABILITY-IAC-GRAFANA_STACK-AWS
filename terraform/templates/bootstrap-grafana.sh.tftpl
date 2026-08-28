@@ -1,0 +1,13 @@
+#!/bin/bash
+set -euo pipefail
+dnf install -y docker
+systemctl enable --now docker
+mkdir -p /opt/observability/data /opt/observability/grafana/provisioning/datasources
+chown -R 472:472 /opt/observability/data
+chmod 750 /opt/observability/data
+echo '${compose_file}' | base64 -d > /opt/observability/docker-compose.yml
+echo '${datasource_config}' | base64 -d | sed "s/PROMETHEUS_PRIVATE_IP/${prometheus_ip}/g; s/LOKI_PRIVATE_IP/${loki_ip}/g; s/TEMPO_PRIVATE_IP/${tempo_ip}/g" > /opt/observability/grafana/provisioning/datasources/datasources.yml
+export GRAFANA_ADMIN_USER='${grafana_admin_user}'
+export GRAFANA_ADMIN_PASSWORD='${grafana_admin_password}'
+cd /opt/observability
+docker compose up -d
