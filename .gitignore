@@ -1,0 +1,36 @@
+# Terraform local & state files
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Terraform secret variables
+*.tfvars
+*.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+
+# Environment variables & secrets
+.env
+.env.*
+*.pem
+*.key
+*.pub
+id_rsa*
+*.pfx
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+
+# Internal documentation
+*Internal-Documentation.md
