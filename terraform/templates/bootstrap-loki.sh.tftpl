@@ -1,0 +1,11 @@
+#!/bin/bash
+set -euo pipefail
+dnf install -y docker
+systemctl enable --now docker
+mkdir -p /opt/observability/data /opt/observability/loki
+chown -R 10001:10001 /opt/observability/data
+chmod 750 /opt/observability/data
+echo '${compose_file}' | base64 -d > /opt/observability/docker-compose.yml
+echo '${loki_config}' | base64 -d > /opt/observability/loki/loki-config.yml
+cd /opt/observability
+docker compose up -d
