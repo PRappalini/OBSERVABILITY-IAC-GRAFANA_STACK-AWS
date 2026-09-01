@@ -6,6 +6,6 @@ mkdir -p /opt/observability/data /opt/observability/prometheus
 chown -R 65534:65534 /opt/observability/data
 chmod 750 /opt/observability/data
 echo '${compose_file}' | base64 -d > /opt/observability/docker-compose.yml
-echo '${prometheus_config}' | base64 -d > /opt/observability/prometheus/prometheus.yml
+echo '${prometheus_config}' | base64 -d | sed "s/LOKI_PRIVATE_IP/${loki_ip}/g; s/TEMPO_PRIVATE_IP/${tempo_ip}/g; s/GRAFANA_PRIVATE_IP/${grafana_ip}/g" > /opt/observability/prometheus/prometheus.yml
 cd /opt/observability
 docker compose up -d
