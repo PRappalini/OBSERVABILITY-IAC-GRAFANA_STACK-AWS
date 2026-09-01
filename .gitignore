@@ -32,9 +32,14 @@ Thumbs.db
 *.log
 .idea/
 
-# MkDocs build output
+# MkDocs build output & cache
 site/
 .cache/
 
-# Internal documentation - Agregar en el Personal, Eliminar en el Laboral
-#*Internal-Documentation.md
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Auto-synced docs during MkDocs build
+/docs/Internal-Documentation.md
+
