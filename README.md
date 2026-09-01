@@ -97,16 +97,16 @@ flowchart TD
 To ensure high availability and prevent silent failures in production, the stack implements a **3-tier observability model**:
 
 ```text
-┌──────────────────────────────────────────────────────────────────┐
+┌────────────────────────────────────────────────────────────────────────┐
 │  Tier 3: Application Engine Metrics (/metrics: 9090, 3100, 3200, 3000) │
-│  - Ingestion rates, compaction status, query latency, span stats │
-├──────────────────────────────────────────────────────────────────┤
-│  Tier 2: Container Runtime Metrics (cAdvisor: 8080)              │
-│  - Per-container CPU throttling, memory limits, OOM kills        │
-├──────────────────────────────────────────────────────────────────┤
-│  Tier 1: Host / OS Metrics (Node Exporter: 9100)                 │
-│  - EBS disk capacity exhaustion, kernel memory, CPU load, I/O    │
-└──────────────────────────────────────────────────────────────────┘
+│  - Ingestion rates, compaction status, query latency, span stats       │
+├────────────────────────────────────────────────────────────────────────┤
+│  Tier 2: Container Runtime Metrics (cAdvisor: 8080)                    │
+│  - Per-container CPU throttling, memory limits, OOM kills              │
+├────────────────────────────────────────────────────────────────────────┤
+│  Tier 1: Host / OS Metrics (Node Exporter: 9100)                       │
+│  - EBS disk capacity exhaustion, kernel memory, CPU load, I/O          │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 1. Host / OS Telemetry (`node_exporter` - Port `9100`)
@@ -166,7 +166,6 @@ To ensure high availability and prevent silent failures in production, the stack
 │       ├── docker-compose.yml                     # Tempo + Node Exporter + cAdvisor
 │       └── tempo.yml
 ├── docs/
-│   ├── Internal-Documentation.md                  # Comprehensive architectural reference
 │   ├── architecture.drawio                        # Native Draw.io editable architecture diagram
 │   ├── architecture.html                          # Standalone HTML render of the architecture diagram
 │   ├── architecture.md                            # Architecture & topology deep-dive
@@ -174,6 +173,7 @@ To ensure high availability and prevent silent failures in production, the stack
 │   ├── deployment.md                              # Detailed step-by-step deployment guide
 │   ├── index.md                                   # Documentation home page
 │   ├── security.md                                # Security, IAM & hardening specifications
+│   ├── Spanish-Documentation.md                   # Comprehensive technical reference (Spanish)
 │   ├── stylesheets/
 │   │   └── extra.css                              # Custom CSS for MkDocs Material theme
 │   └── telemetry.md                               # Multi-tier telemetry & scrape matrix
@@ -191,6 +191,7 @@ To ensure high availability and prevent silent failures in production, the stack
 │   ├── terraform.tfvars.example                   # Variable values template
 │   ├── variables.tf                               # Input variable declarations
 │   └── versions.tf                                # Terraform & AWS Provider versions
+├── Internal-Documentation.md                      # Comprehensive architectural reference (in Spanish)
 ├── mkdocs.yml                                     # Material for MkDocs configuration
 ├── requirements-docs.txt                          # Python dependencies for documentation build
 └── README.md
