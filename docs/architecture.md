@@ -72,7 +72,7 @@ flowchart TD
 
 Below is the standalone HTML render of the full architecture map:
 
-<iframe src="architecture.html" class="architecture-frame" title="Architecture Diagram"></iframe>
+<iframe src="../architecture.html" class="architecture-frame" title="Architecture Diagram"></iframe>
 
 /// note | Diagram Files
 - **Standalone Full-Screen HTML**: [Open `architecture.html`](architecture.html){ target="_blank" }
