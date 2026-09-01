@@ -69,13 +69,10 @@ markdown_extensions:
   - pymdownx.mark
   - pymdownx.tilde
 
-hooks:
-  - scripts/mkdocs_hooks.py
-
 nav:
   - Home: index.md
   - Architecture: architecture.md
   - Multi-Layer Telemetry: telemetry.md
   - Security & Networking: security.md
   - Deployment Guide: deployment.md
-  - Technical Reference: Internal-Documentation.md
+  - Technical Reference: Spanish-Documentation.md
