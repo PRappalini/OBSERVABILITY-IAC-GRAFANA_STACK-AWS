@@ -221,6 +221,7 @@ Los servicios utilizan carpetas montadas directamente desde el host (`./data:/ru
 │   ├── deployment.md              # Guía paso a paso de aprovisionamiento
 │   ├── index.md                   # Portada y visión general de la documentación
 │   ├── security.md                # Matriz de seguridad, IAM y endurecimiento
+│   ├── Spanish-Documentation.md   # Documentación técnica de arquitectura y decisiones
 │   ├── stylesheets/
 │   │   └── extra.css              # Estilos personalizados para el tema MkDocs Material
 │   └── telemetry.md               # Modelo de observabilidad multi-capa y scraping
