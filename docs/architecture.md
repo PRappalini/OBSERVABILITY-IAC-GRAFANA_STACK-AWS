@@ -47,17 +47,23 @@ flowchart TD
         end
     end
 
-    User -->|HTTP :3000 (UI)| SG_Grafana --> Grafana
-    Grafana -->|Query :9090| SG_Prometheus --> Prometheus
-    Grafana -->|Query :3100| SG_Loki --> Loki
-    Grafana -->|Query :3200| SG_Tempo --> Tempo
+    User -->|"HTTP :3000 (UI)"| IGW
+    IGW --> SG_Grafana
+    SG_Grafana --> Grafana
 
-    Prometheus -.->|Scrape :9100, :8080, :3000| SG_Grafana
-    Prometheus -.->|Scrape :9100, :8080, :3100| SG_Loki
-    Prometheus -.->|Scrape :9100, :8080, :3200| SG_Tempo
-    Prometheus -.->|Local Scrape :9100, :8080, :9090| NodeExp_Prom
+    Grafana -->|"Query :9090"| SG_Prometheus
+    SG_Prometheus --> Prometheus
 
-    IGW --- Public_Subnet
+    Grafana -->|"Query :3100"| SG_Loki
+    SG_Loki --> Loki
+
+    Grafana -->|"Query :3200"| SG_Tempo
+    SG_Tempo --> Tempo
+
+    Prometheus -.->|"Scrape :9100, :8080, :3000"| SG_Grafana
+    Prometheus -.->|"Scrape :9100, :8080, :3100"| SG_Loki
+    Prometheus -.->|"Scrape :9100, :8080, :3200"| SG_Tempo
+    Prometheus -.->|"Local Scrape :9100, :8080, :9090"| NodeExp_Prom
 ```
 
 ---
