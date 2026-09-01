@@ -46,4 +46,4 @@ A modular, automated, production-ready Infrastructure as Code (IaC) solution usi
 - [Multi-Layer Telemetry](telemetry.md): 3-tier scraping strategy and metrics exposure.
 - [Security & Networking](security.md): Least-privilege SG matrix, SSM, and IMDSv2.
 - [Deployment Guide](deployment.md): Step-by-step Terraform provisioning and post-deployment validation.
-- [Technical Reference](Internal-Documentation.md): Comprehensive architectural analysis, design decisions, and roadmap.
+- [Technical Reference](Spanish-Documentation.md): Comprehensive architectural analysis, design decisions, and roadmap in Spanish.
