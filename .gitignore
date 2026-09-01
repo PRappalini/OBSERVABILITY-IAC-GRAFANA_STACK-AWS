@@ -32,5 +32,9 @@ Thumbs.db
 *.log
 .idea/
 
+# MkDocs build output
+site/
+.cache/
+
 # Internal documentation - Agregar en el Personal, Eliminar en el Laboral
 #*Internal-Documentation.md
