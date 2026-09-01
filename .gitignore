@@ -32,5 +32,5 @@ Thumbs.db
 *.log
 .idea/
 
-# Internal documentation
-*Internal-Documentation.md
+# Internal documentation - Agregar en el Personal, Eliminar en el Laboral
+#*Internal-Documentation.md
