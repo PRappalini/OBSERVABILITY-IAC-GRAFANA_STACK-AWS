@@ -1,6 +1,7 @@
 services:
   tempo:
-    image: grafana/tempo:2.7.1
+    image: grafana/tempo
+    #image: grafana/tempo:2.7.1
     restart: unless-stopped
     ports:
       - "3200:3200"
@@ -8,3 +9,23 @@ services:
     volumes:
       - ./tempo/tempo.yml:/etc/tempo.yaml:ro
       - ./data:/var/tempo
+  node-exporter:
+    image: prom/node-exporter:v1.9.0
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    command: ["--path.rootfs=/host"]
+    volumes:
+      - /:/host:ro,rslave
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.2
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
