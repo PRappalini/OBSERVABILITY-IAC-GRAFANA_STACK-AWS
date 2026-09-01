@@ -1,9 +1,10 @@
 services:
   prometheus:
-    image: prom/prometheus:v3.2.1
+    image: prom/prometheus
+    # image: prom/prometheus:v3.2.1
     restart: unless-stopped
     ports:
-      - "9090:9090"
+      - 9090:9090
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.path=/prometheus
@@ -14,6 +15,8 @@ services:
   node-exporter:
     image: prom/node-exporter:v1.9.0
     restart: unless-stopped
+    ports:
+      - "9100:9100"
     command: ["--path.rootfs=/host"]
     volumes:
       - /:/host:ro,rslave
@@ -21,6 +24,8 @@ services:
     image: gcr.io/cadvisor/cadvisor:v0.49.2
     restart: unless-stopped
     privileged: true
+    ports:
+      - "8080:8080"
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
