@@ -6,7 +6,7 @@ Este documento contiene el análisis arquitectónico, los hallazgos técnicos, e
 
 ## 1. Resumen Ejecutivo y Propósito
 
-El objetivo de este repositorio es aprovisionar un stack completo de observabilidad de cuatro pilares (**Visualización, Métricas, Logs y Trazas**) en AWS mediante Infraestructura como Código (Terraform). 
+El objetivo de este repositorio es aprovisionar un stack completo de observabilidad de cuatro pilares (**Visualización, Métricas, Logs y Trazas**) en AWS mediante Infraestructura como Código (Terraform).
 
 Cada componente se ejecuta en una instancia EC2 dedicada con Docker Compose, utilizando almacenamiento montado directamente en el sistema de archivos del host (`/opt/observability/data`), garantizando aislamiento de procesos, facilidad de respaldo y compatibilidad con volúmenes EBS dedicados.
 
@@ -30,6 +30,7 @@ Para garantizar la alta disponibilidad y evitar fallos silenciosos, cada nodo ej
 ![Diagrama de Arquitectura](docs/architecture.png)
 
 > **Formatos del Diagrama de Arquitectura**:
+>
 > - 🌐 **Render HTML**: [`docs/architecture.html`](docs/architecture.html)
 > - 🖼️ **Imagen PNG de Alta Resolución**: [`docs/architecture.png`](docs/architecture.png)
 > - 📐 **Diagrama Editable Draw.io**: [`docs/architecture.drawio`](docs/architecture.drawio)
@@ -197,7 +198,8 @@ Los servicios utilizan carpetas montadas directamente desde el host (`./data:/ru
 | **Loki** | `/opt/observability/data` | `/loki` | `chown -R 10001:10001` (`loki`) |
 | **Tempo** | `/opt/observability/data` | `/var/tempo` | `chown -R 10001:10001` (`tempo`) |
 
-### Ventajas:
+### Ventajas
+
 - **Compatibilidad con volúmenes EBS secundarios**: Facilita montar un disco EBS dedicado directamente en `/opt/observability/data`.
 - **Backups directos**: Permite realizar copias de seguridad del sistema de archivos sin depender del ciclo de vida de Docker.
 - **Inmunidad a `docker volume prune`**: Los datos nunca se borran accidentalmente al limpiar contenedores.
@@ -287,10 +289,12 @@ Los servicios utilizan carpetas montadas directamente desde el host (`./data:/ru
 ## 7. Recomendaciones y Hoja de Ruta para Producción
 
 ### Fase 1: Seguridad y Acceso
+
 - **ALB + HTTPS**: Desplegar un Application Load Balancer público con certificado TLS de AWS Certificate Manager (ACM) delante de Grafana y mover las 4 instancias EC2 a subredes privadas.
 - **AWS Secrets Manager**: Almacenar la contraseña de Grafana en AWS Secrets Manager o SSM Parameter Store.
 
 ### Fase 2: Almacenamiento Escalable y Dedicado
+
 - **Volumen EBS Secundario Dedicado**:
   - Crear un `aws_ebs_volume` separado en Terraform y adjuntarlo a cada instancia (`aws_volume_attachment`).
   - Montar dicho volumen directamente en `/opt/observability/data` en el script de arranque para desacoplar totalmente el ciclo de vida del SO respecto a los datos.
