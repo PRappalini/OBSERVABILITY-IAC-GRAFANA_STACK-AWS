@@ -2,6 +2,8 @@
 
 A modular, automated, production-ready Infrastructure as Code (IaC) solution using **Terraform** to provision a complete 4-pillar observability platform (**Metrics, Logs, Traces, and Dashboards**) on **Amazon Web Services (AWS)** using **Docker Compose** on dedicated Amazon Linux 2023 EC2 instances.
 
+> 📚 **Live Documentation Site**: [https://prappalini.github.io/OBSERVABILITY-IAC-GRAFANA_STACK-AWS/](https://prappalini.github.io/OBSERVABILITY-IAC-GRAFANA_STACK-AWS/)
+
 ---
 
 ## Architecture Overview
@@ -141,6 +143,9 @@ To ensure high availability and prevent silent failures in production, the stack
 
 ```text
 .
+├── .github/
+│   └── workflows/
+│       └── deploy-docs.yml                        # GitHub Actions workflow for MkDocs GitHub Pages
 ├── docker/
 │   ├── grafana/
 │   │   ├── docker-compose.yml                     # Grafana + Node Exporter + cAdvisor
@@ -158,7 +163,14 @@ To ensure high availability and prevent silent failures in production, the stack
 │   ├── Internal-Documentation.md                  # Comprehensive architectural reference
 │   ├── architecture.drawio                        # Native Draw.io editable architecture diagram
 │   ├── architecture.html                          # Standalone HTML render of the architecture diagram
-│   └── architecture.png                           # High-resolution visual architecture diagram
+│   ├── architecture.md                            # Architecture & topology deep-dive
+│   ├── architecture.png                           # High-resolution visual architecture diagram
+│   ├── deployment.md                              # Detailed step-by-step deployment guide
+│   ├── index.md                                   # Documentation home page
+│   ├── security.md                                # Security, IAM & hardening specifications
+│   ├── stylesheets/
+│   │   └── extra.css                              # Custom CSS for MkDocs Material theme
+│   └── telemetry.md                               # Multi-tier telemetry & scrape matrix
 ├── terraform/
 │   ├── ec2.tf                                     # EC2 instances, EBS storage & bootstrap
 │   ├── iam.tf                                     # IAM Roles, SSM policy & Instance Profile
@@ -173,7 +185,35 @@ To ensure high availability and prevent silent failures in production, the stack
 │   ├── terraform.tfvars.example                   # Variable values template
 │   ├── variables.tf                               # Input variable declarations
 │   └── versions.tf                                # Terraform & AWS Provider versions
+├── mkdocs.yml                                     # Material for MkDocs configuration
+├── requirements-docs.txt                          # Python dependencies for documentation build
 └── README.md
+```
+
+---
+
+## 📚 Documentation Site (MkDocs)
+
+The project includes an interactive documentation website built with **Material for MkDocs**, automatically deployed to **GitHub Pages** on every push to `master`.
+
+### Local Documentation Server
+
+To preview the documentation locally with hot reloading:
+
+```bash
+# Install dependencies
+pip install -r requirements-docs.txt
+
+# Start live preview server
+mkdocs serve
+```
+
+Access the documentation at `http://127.0.0.1:8000`.
+
+### Build Static Site
+
+```bash
+mkdocs build
 ```
 
 ---
