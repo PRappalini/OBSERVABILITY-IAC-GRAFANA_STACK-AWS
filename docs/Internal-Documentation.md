@@ -203,26 +203,39 @@ Los servicios utilizan carpetas montadas directamente desde el host (`./data:/ru
 ### Arquitectura Plana en Terraform
 
 ```text
-docs/
-├── Internal-Documentation.md  # Documento técnico de arquitectura y decisiones
-├── architecture.drawio        # Diagrama editable importable en diagrams.net (Draw.io)
-├── architecture.html          # Render HTML autónomo del diagrama de arquitectura
-└── architecture.png           # Imagen de alta resolución del diagrama de arquitectura
-
-terraform/
-├── ec2.tf                     # AMI Data source, asignación de IPs privadas e instancias EC2
-├── iam.tf                     # Roles IAM, políticas SSM e Instance Profile
-├── network.tf                 # VPC, Subnet pública, Internet Gateway y Route Table
-├── outputs.tf                 # URLs públicas y DNS/IPs privadas de las instancias
-├── security.tf                # Security Groups con reglas least-privilege y scraping
-├── templates/                 # Scripts de bootstrap (user_data) con reemplazo de IPs
-│   ├── bootstrap-grafana.sh.tftpl
-│   ├── bootstrap-loki.sh.tftpl
-│   ├── bootstrap-prometheus.sh.tftpl
-│   └── bootstrap-tempo.sh.tftpl
-├── terraform.tfvars.example   # Variables de ejemplo
-├── variables.tf               # Declaración de variables de entrada
-└── versions.tf                # Requerimientos de versión de Terraform y AWS Provider
+.
+├── .github/
+│   └── workflows/
+│       └── deploy-docs.yml    # Workflow de GitHub Actions para despliegue en GitHub Pages
+├── docs/
+│   ├── Internal-Documentation.md  # Documento técnico de arquitectura y decisiones
+│   ├── architecture.drawio        # Diagrama editable importable en diagrams.net (Draw.io)
+│   ├── architecture.html          # Render HTML autónomo del diagrama de arquitectura
+│   ├── architecture.md            # Desglose arquitectónico y topología para MkDocs
+│   ├── architecture.png           # Imagen de alta resolución del diagrama de arquitectura
+│   ├── deployment.md              # Guía paso a paso de aprovisionamiento
+│   ├── index.md                   # Portada y visión general de la documentación
+│   ├── security.md                # Matriz de seguridad, IAM y endurecimiento
+│   ├── stylesheets/
+│   │   └── extra.css              # Estilos personalizados para el tema MkDocs Material
+│   └── telemetry.md               # Modelo de observabilidad multi-capa y scraping
+├── terraform/
+│   ├── ec2.tf                     # AMI Data source, asignación de IPs privadas e instancias EC2
+│   ├── iam.tf                     # Roles IAM, políticas SSM e Instance Profile
+│   ├── network.tf                 # VPC, Subnet pública, Internet Gateway y Route Table
+│   ├── outputs.tf                 # URLs públicas y DNS/IPs privadas de las instancias
+│   ├── security.tf                # Security Groups con reglas least-privilege y scraping
+│   ├── templates/                 # Scripts de bootstrap (user_data) con reemplazo de IPs
+│   │   ├── bootstrap-grafana.sh.tftpl
+│   │   ├── bootstrap-loki.sh.tftpl
+│   │   ├── bootstrap-prometheus.sh.tftpl
+│   │   └── bootstrap-tempo.sh.tftpl
+│   ├── terraform.tfvars.example   # Variables de ejemplo
+│   ├── variables.tf               # Declaración de variables de entrada
+│   └── versions.tf                # Requerimientos de versión de Terraform y AWS Provider
+├── mkdocs.yml                     # Configuración del sitio de documentación con Material for MkDocs
+├── requirements-docs.txt          # Dependencias Python para compilar la documentación
+└── README.md
 ```
 
 ### Prevención de Dependencias Circulares e Inyección de IPs
@@ -257,6 +270,10 @@ terraform/
    - Configuración de scraping en Prometheus para recolectar métricas de SO (9100), Contenedores (8080) y Motores de Aplicación (3000, 3100, 3200, 9090).
    - Actualización de Security Groups en AWS para permitir tráfico de scraping exclusivamente desde el SG de Prometheus.
    - Determinación estática de IPs privadas con `cidrhost` para garantizar estabilidad y eliminar dependencias circulares.
+5. **Sitio de Documentación Web con MkDocs & GitHub Pages**:
+   - Implementación de **Material for MkDocs** (`mkdocs.yml`) con soporte multitema (Dark/Light), diagramas Mermaid nativos, tablas interactivas y búsqueda indexada.
+   - Pipeline de CI/CD automatizado en GitHub Actions ([`.github/workflows/deploy-docs.yml`](file:///.github/workflows/deploy-docs.yml)) para publicación continua en GitHub Pages.
+   - Render interactivo de la arquitectura en HTML integrado directamente en el sitio.
 
 ---
 
