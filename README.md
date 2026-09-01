@@ -6,7 +6,14 @@ A modular, automated, production-ready Infrastructure as Code (IaC) solution usi
 
 ## Architecture Overview
 
-Each core observability component runs isolated on its own EC2 instance within a dedicated AWS VPC:
+![Grafana Observability Stack Architecture](docs/architecture.png)
+
+> **Architecture Diagram Formats**:
+> - 🌐 **Interactive HTML Render**: [`docs/architecture.html`](docs/architecture.html)
+> - 🖼️ **High-Resolution PNG**: [`docs/architecture.png`](docs/architecture.png)
+> - 📐 **Draw.io Editable Diagram**: [`docs/architecture.drawio`](docs/architecture.drawio)
+
+Each core observability component runs isolated on its own EC2 instance within a dedicated AWS VPC. Every node runs **Node Exporter** and **cAdvisor** alongside the core service, providing 360-degree observability across host OS, container runtime, and application engine layers.
 
 ```mermaid
 flowchart TD
@@ -21,32 +28,44 @@ flowchart TD
             
             subgraph Node_Grafana ["EC2: Grafana (t3.small)"]
                 Grafana["Grafana v11.5.2 (:3000)"]
-                SG_Grafana["SG: Ingress :3000 (Allowed CIDRs)"]
+                NodeExp_Grafana["Node Exporter (:9100)"]
+                cAdvisor_Grafana["cAdvisor (:8080)"]
+                SG_Grafana["SG: Ingress :3000 (User CIDRs)<br/>:3000, :8080, :9100 (Prometheus SG)"]
             end
 
             subgraph Node_Prometheus ["EC2: Prometheus (t3.small)"]
                 Prometheus["Prometheus v3.2.1 (:9090)"]
-                NodeExp["Node Exporter (:9100)"]
-                cAdvisor["cAdvisor (:8080)"]
+                NodeExp_Prom["Node Exporter (:9100)"]
+                cAdvisor_Prom["cAdvisor (:8080)"]
                 SG_Prometheus["SG: Ingress :9090 (Grafana SG Only)"]
             end
 
             subgraph Node_Loki ["EC2: Loki (t3.small)"]
                 Loki["Loki v3.4.2 (:3100)"]
-                SG_Loki["SG: Ingress :3100 (Grafana SG Only)"]
+                NodeExp_Loki["Node Exporter (:9100)"]
+                cAdvisor_Loki["cAdvisor (:8080)"]
+                SG_Loki["SG: Ingress :3100 (Grafana SG)<br/>:3100, :8080, :9100 (Prometheus SG)"]
             end
 
             subgraph Node_Tempo ["EC2: Tempo (t3.small)"]
                 Tempo["Tempo v2.7.1 (:3200 / :4317 / :4318)"]
-                SG_Tempo["SG: Ingress :3200 (Grafana SG Only)"]
+                NodeExp_Tempo["Node Exporter (:9100)"]
+                cAdvisor_Tempo["cAdvisor (:8080)"]
+                SG_Tempo["SG: Ingress :3200 (Grafana SG)<br/>:3200, :8080, :9100 (Prometheus SG)"]
             end
         end
     end
 
-    User -->|HTTP :3000| SG_Grafana --> Grafana
-    Grafana -->|HTTP :9090| SG_Prometheus --> Prometheus
-    Grafana -->|HTTP :3100| SG_Loki --> Loki
-    Grafana -->|HTTP :3200| SG_Tempo --> Tempo
+    User -->|HTTP :3000 (UI)| SG_Grafana --> Grafana
+    Grafana -->|Query :9090| SG_Prometheus --> Prometheus
+    Grafana -->|Query :3100| SG_Loki --> Loki
+    Grafana -->|Query :3200| SG_Tempo --> Tempo
+
+    Prometheus -.->|Scrape :9100, :8080, :3000| SG_Grafana
+    Prometheus -.->|Scrape :9100, :8080, :3100| SG_Loki
+    Prometheus -.->|Scrape :9100, :8080, :3200| SG_Tempo
+    Prometheus -.->|Local Scrape :9100, :8080, :9090| NodeExp_Prom
+
     IGW --- Public_Subnet
 ```
 
@@ -54,27 +73,67 @@ flowchart TD
 
 ## Stack Components & Specifications
 
-| Component | Docker Image | Listening Port | Storage / Retention | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| **Grafana** | `grafana/grafana:11.5.2` | `3000` | 20 GB gp3 EBS | Visualization platform with auto-provisioned, linked datasources. |
-| **Prometheus** | `prom/prometheus:v3.2.1` | `9090` | 30 GB gp3 EBS (15d retention) | Time-series metrics engine and TSDB storage. |
-| **Node Exporter** | `prom/node-exporter:v1.9.0` | `9100` (Docker net) | N/A (Host metrics) | Host CPU, memory, disk, and network metrics collector. |
-| **cAdvisor** | `gcr.io/cadvisor/cadvisor:v0.49.2` | `8080` (Docker net) | N/A (Container metrics) | Container resource usage and performance metrics. |
-| **Loki** | `grafana/loki:3.4.2` | `3100` | 30 GB gp3 EBS (TSDB v13) | Log aggregation and query engine (LogQL). |
-| **Tempo** | `grafana/tempo:2.7.1` | `3200`, `4317`, `4318` | 30 GB gp3 EBS (48h retention) | Distributed tracing backend supporting OTLP gRPC/HTTP. |
+| Component | Docker Image | Listening Port(s) | Storage / Retention | Deployment Scope | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Grafana** | `grafana/grafana:11.5.2` | `3000` | 20 GB gp3 EBS | Dedicated Node | Visualization platform with auto-provisioned, linked datasources. |
+| **Prometheus** | `prom/prometheus:v3.2.1` | `9090` | 30 GB gp3 EBS (15d retention) | Dedicated Node | Time-series metrics engine and TSDB storage. |
+| **Loki** | `grafana/loki:3.4.2` | `3100` | 30 GB gp3 EBS (TSDB v13) | Dedicated Node | Log aggregation and query engine (LogQL). |
+| **Tempo** | `grafana/tempo:2.7.1` | `3200`, `4317`, `4318` | 30 GB gp3 EBS (48h retention) | Dedicated Node | Distributed tracing backend supporting OTLP gRPC/HTTP. |
+| **Node Exporter** | `prom/node-exporter:v1.9.0` | `9100` | N/A (Host metrics) | **All 4 Nodes** | Host CPU, memory, disk I/O, filesystem, and network collector. |
+| **cAdvisor** | `gcr.io/cadvisor/cadvisor:v0.49.2` | `8080` | N/A (Container metrics) | **All 4 Nodes** | Container resource usage, memory limits, and CPU throttling. |
+
+---
+
+## Multi-Layer Observability & Monitoring Strategy
+
+To ensure high availability and prevent silent failures in production, the stack implements a **3-tier observability model**:
+
+```text
+┌──────────────────────────────────────────────────────────────────┐
+│  Tier 3: Application Engine Metrics (/metrics: 9090, 3100, 3200, 3000) │
+│  - Ingestion rates, compaction status, query latency, span stats │
+├──────────────────────────────────────────────────────────────────┤
+│  Tier 2: Container Runtime Metrics (cAdvisor: 8080)              │
+│  - Per-container CPU throttling, memory limits, OOM kills        │
+├──────────────────────────────────────────────────────────────────┤
+│  Tier 1: Host / OS Metrics (Node Exporter: 9100)                 │
+│  - EBS disk capacity exhaustion, kernel memory, CPU load, I/O    │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### 1. Host / OS Telemetry (`node_exporter` - Port `9100`)
+- **EBS Disk Capacity Alerts**: Logs (Loki) and traces (Tempo) generate continuous disk writes. Monitoring disk usage prevents silent disk exhaustion crashes.
+- **System Memory & Swap**: Identifies memory pressure before the Linux kernel OOM killer terminates core services.
+- **CPU & Load Average**: Detects CPU saturation caused by heavy LogQL/PromQL queries or high ingestion bursts.
+- **Network I/O**: Tracks network bandwidth consumption between workload collectors and the observability nodes.
+
+### 2. Container Telemetry (`cadvisor` - Port `8080`)
+- **Per-Container Memory Allocation**: Pinpoints exact memory consumption inside each Docker container, isolating memory leaks.
+- **cgroup CPU Throttling**: Detects if container CPU limits are restricting ingestion or query execution speeds.
+- **Container Health & Restarts**: Real-time visibility into container crash loops and exit codes.
+
+### 3. Application Engine Telemetry (Native `/metrics` Endpoints)
+- **Loki Engine (`:3100/metrics`)**: Monitored by Prometheus for chunk memtable sizes, log ingestion rate (bytes/sec), compaction cycle durations, and query error rates.
+- **Tempo Engine (`:3200/metrics`)**: Tracks span ingestion throughput, live trace buffer status, block flushes, and search query latencies.
+- **Grafana Engine (`:3000/metrics`)**: Monitors active dashboard sessions, datasource query performance, alert evaluation timings, and API latency.
+- **Prometheus Engine (`:9090/metrics`)**: Observes TSDB head series cardinality, chunk compaction, scrape interval delays, and WAL write latency.
 
 ---
 
 ## Key Security Features
 
-- **Least-Privilege Network Ingress**: Backend services (Prometheus, Loki, Tempo) are **not exposed** to the internet. AWS Security Groups restrict ingress ports (`9090`, `3100`, `3200`) strictly to the private IP traffic originating from the `grafana` Security Group.
+- **Least-Privilege Network Ingress**:
+  - **Grafana UI**: Port `3000` is open only to authorized CIDR ranges (`var.grafana_allowed_cidrs`).
+  - **Datasource Queries**: Backend services (`9090`, `3100`, `3200`) accept query traffic **strictly** from the `grafana` Security Group.
+  - **Metric Scraping**: Ports `9100` (Node Exporter), `8080` (cAdvisor), `3000` (Grafana), `3100` (Loki), and `3200` (Tempo) accept scrape traffic **strictly** from the `prometheus` Security Group.
 - **Zero-Key SSH Administration (AWS Systems Manager)**: All instances are attached to an IAM Instance Profile with `AmazonSSMManagedInstanceCore`. You can connect securely via **AWS SSM Session Manager** without opening port 22 or managing SSH key pairs.
+- **Deterministic Private IP Architecture**: Instances are provisioned with predictable, deterministic private IPs within the VPC (`cidrhost`), preventing Terraform cyclic dependencies during multi-directional bootstrap configuration.
 - **IMDSv2 Enforced**: EC2 Instance Metadata Service v2 (`http_tokens = "required"`) is mandated on all nodes to prevent SSRF vulnerabilities.
 - **Encrypted Storage**: All root EBS volumes use `gp3` with encryption at rest (`encrypted = true`).
 - **Host Bind-Mount Storage (`/opt/observability/data`)**: Container data is stored directly on the host in `/opt/observability/data` with proper Linux UID permissions (`472` for Grafana, `65534` for Prometheus, `10001` for Loki/Tempo), simplifying direct backups, EBS snapshots, and secondary volume expansion.
 - **Pre-linked Telemetry Correlation**: Grafana automatically correlates telemetry data:
-  - **Traces to Logs**: Direct transition from Tempo trace spans to corresponding Loki logs.
-  - **Service Map**: Auto-generated architecture dependency map powered by Prometheus metrics.
+  - **Traces to Logs**: Direct transition from Tempo trace spans to corresponding Loki logs (`jsonData.tracesToLogsV2`).
+  - **Service Map**: Auto-generated architecture dependency map powered by Prometheus metrics (`jsonData.serviceMap`).
 
 ---
 
@@ -84,32 +143,36 @@ flowchart TD
 .
 ├── docker/
 │   ├── grafana/
-│   │   ├── docker-compose.yml
+│   │   ├── docker-compose.yml                     # Grafana + Node Exporter + cAdvisor
 │   │   └── provisioning/datasources/datasources.yml
 │   ├── loki/
-│   │   ├── docker-compose.yml
+│   │   ├── docker-compose.yml                     # Loki + Node Exporter + cAdvisor
 │   │   └── loki-config.yml
 │   ├── prometheus/
-│   │   ├── docker-compose.yml
-│   │   └── prometheus.yml
+│   │   ├── docker-compose.yml                     # Prometheus + Node Exporter + cAdvisor
+│   │   └── prometheus.yml                         # Cross-scraping jobs (all nodes & engines)
 │   └── tempo/
-│       ├── docker-compose.yml
+│       ├── docker-compose.yml                     # Tempo + Node Exporter + cAdvisor
 │       └── tempo.yml
 ├── docs/
+│   ├── Internal-Documentation.md                  # Comprehensive architectural reference
+│   ├── architecture.drawio                        # Native Draw.io editable architecture diagram
+│   ├── architecture.html                          # Standalone HTML render of the architecture diagram
+│   └── architecture.png                           # High-resolution visual architecture diagram
 ├── terraform/
-│   ├── ec2.tf                     # EC2 instances, EBS volumes & bootstrap logic
-│   ├── iam.tf                     # IAM Roles, SSM policy & Instance Profile
-│   ├── network.tf                 # VPC, Subnet, IGW & Routing
-│   ├── outputs.tf                 # Public URLs and internal IPs
-│   ├── security.tf                # Security Groups & ingress/egress rules
-│   ├── templates/                 # Cloud-init / user_data scripts
+│   ├── ec2.tf                                     # EC2 instances, EBS storage & bootstrap
+│   ├── iam.tf                                     # IAM Roles, SSM policy & Instance Profile
+│   ├── network.tf                                 # VPC, Subnet, IGW & Routing
+│   ├── outputs.tf                                 # Public URLs and internal IPs
+│   ├── security.tf                                # Security Groups (least-privilege matrix)
+│   ├── templates/                                 # Cloud-init bootstrap templates
 │   │   ├── bootstrap-grafana.sh.tftpl
 │   │   ├── bootstrap-loki.sh.tftpl
 │   │   ├── bootstrap-prometheus.sh.tftpl
 │   │   └── bootstrap-tempo.sh.tftpl
-│   ├── terraform.tfvars.example   # Variable values template
-│   ├── variables.tf               # Input variable declarations
-│   └── versions.tf                # Terraform & AWS Provider versions
+│   ├── terraform.tfvars.example                   # Variable values template
+│   ├── variables.tf                               # Input variable declarations
+│   └── versions.tf                                # Terraform & AWS Provider versions
 └── README.md
 ```
 
@@ -180,12 +243,12 @@ Outputs:
 
 grafana_url = "http://ec2-xx-xx-xx-xx.compute-1.amazonaws.com:3000"
 grafana_instance_id = "i-0123456789abcdef0"
-prometheus_private_ip = "10.20.10.x"
-loki_private_ip = "10.20.10.y"
-tempo_private_ip = "10.20.10.z"
+prometheus_private_ip = "10.20.10.10"
+loki_private_ip = "10.20.10.11"
+tempo_private_ip = "10.20.10.12"
 ```
 
-> **Note**: Allow **2 to 3 minutes** after EC2 creation for cloud-init to install Docker, pull the container images, and start the services.
+> **Note**: Allow **2 to 3 minutes** after EC2 creation for cloud-init to install Docker, pull the container images, and start all services.
 
 ---
 
@@ -198,6 +261,10 @@ tempo_private_ip = "10.20.10.z"
    - **Loki**
    - **Tempo**
 4. Click **Save & Test** on each data source to verify private network connectivity.
+5. In **Explore**, query Prometheus metrics from:
+   - `node_cpu_seconds_total` / `node_filesystem_avail_bytes` (Node Exporter across all 4 nodes)
+   - `container_memory_usage_bytes` / `container_cpu_usage_seconds_total` (cAdvisor across all 4 nodes)
+   - `loki_ingester_chunks_created_total` / `tempo_distributor_spans_received_total` / `grafana_http_request_duration_seconds_bucket` (App engines)
 
 ---
 
@@ -227,7 +294,7 @@ Once inside any EC2 instance:
 # Check Docker service status
 sudo systemctl status docker
 
-# View running containers
+# View running containers (Core Service + Node Exporter + cAdvisor)
 cd /opt/observability
 sudo docker compose ps
 
