@@ -130,16 +130,16 @@ flowchart TD
 Para evitar puntos ciegos en producción, el stack monitorea tres capas diferenciadas:
 
 ```text
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  CAPA 3: Telemetría de Motor / Aplicación (/metrics en 9090, 3100, 3200, 3000)│
-│  - Ingestión de logs/spans, flushing a disco, compactación, latencia queries│
-├─────────────────────────────────────────────────────────────────────────────┤
-│  CAPA 2: Telemetría de Contenedores (cAdvisor en 8080)                      │
-│  - Memoria working set por contenedor, CPU throttling cgroups, crash loops  │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  CAPA 1: Telemetría de Host / SO (Node Exporter en 9100)                    │
-│  - Espacio en disco EBS gp3, saturación de RAM kernel, I/O wait, red        │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────────┐
+│  CAPA 3: Telemetría de Motor / App (/metrics en 9090, 3100, 3200, 3000)       │
+│  - Ingestión de logs/spans, flushing a disco, compactación, latencia queries  │
+├───────────────────────────────────────────────────────────────────────────────┤
+│  CAPA 2: Telemetría de Contenedores (cAdvisor en 8080)                        │
+│  - Memoria working set por contenedor, CPU throttling cgroups, crash loops    │
+├───────────────────────────────────────────────────────────────────────────────┤
+│  CAPA 1: Telemetría de Host / SO (Node Exporter en 9100)                      │
+│  - Espacio en disco EBS gp3, saturación de RAM kernel, I/O wait, red          │
+└───────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Capa 1: Monitoreo de Host y Sistema Operativo (`node_exporter` - Puerto `9100`)
