@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #0F172A;
+    color: #1E293B;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1660px;
+    height: 1180px;
+    padding: 20px;
+  }
+  .canvas {
+    background: #FFFFFF;
+    width: 1620px;
+    height: 1140px;
+    border-radius: 16px;
+    padding: 24px 28px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #E2E8F0;
+    padding-bottom: 12px;
+  }
+  .title { font-size: 22px; font-weight: 800; color: #0F172A; display: flex; align-items: center; gap: 8px; }
+  .subtitle { font-size: 12.5px; color: #64748B; margin-top: 3px; font-weight: 500; }
+  .badges { display: flex; gap: 8px; }
+  .badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-aws { background: #FEF3C7; color: #B45309; border: 1px solid #FCD34D; }
+  .badge-tf { background: #EDE9FE; color: #6D28D9; border: 1px solid #C4B5FD; }
+  .badge-docker { background: #E0F2FE; color: #0369A1; border: 1px solid #7DD3FC; }
+
+  /* Main Layout */
+  .diagram-body {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+  }
+
+  /* User Box */
+  .user-container {
+    width: 135px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 80px;
+  }
+  .user-card {
+    background: #F8FAFC;
+    border: 2px solid #64748B;
+    border-radius: 12px;
+    padding: 16px 10px;
+    text-align: center;
+    width: 100%;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  }
+  .user-icon { font-size: 32px; margin-bottom: 6px; }
+  .user-title { font-size: 13px; font-weight: 700; color: #1E293B; }
+  .user-subtitle { font-size: 10px; color: #64748B; margin-top: 2px; }
+
+  /* AWS Cloud */
+  .aws-cloud {
+    flex: 1;
+    border: 2px dashed #F59E0B;
+    border-radius: 14px;
+    background: #FFFBEB;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+  }
+  .aws-cloud-header {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: #B45309;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  /* VPC */
+  .vpc-container {
+    border: 2px solid #3B82F6;
+    border-radius: 12px;
+    background: #EFF6FF;
+    padding: 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .vpc-header {
+    font-size: 12px;
+    font-weight: 800;
+    color: #1D4ED8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  /* IGW Bar */
+  .igw-bar {
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background: #FEF3C7;
+    border: 1.5px solid #D97706;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #92400E;
+    z-index: 10;
+  }
+
+  /* Subnet */
+  .subnet-container {
+    border: 1.5px dashed #22C55E;
+    border-radius: 10px;
+    background: #F0FDF4;
+    padding: 10px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .subnet-header {
+    font-size: 11px;
+    font-weight: 700;
+    color: #15803D;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* Nodes Grid */
+  .nodes-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    flex: 1;
+  }
+
+  /* Node Card */
+  .node-card {
+    background: #FFFFFF;
+    border: 1.5px solid #CBD5E1;
+    border-radius: 10px;
+    padding: 10px 10px 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  }
+  .node-header {
+    border-bottom: 1px solid #E2E8F0;
+    padding-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .node-name { font-size: 12.5px; font-weight: 800; color: #0F172A; }
+  .node-meta { font-size: 10px; color: #64748B; font-weight: 600; }
+
+  /* Security Group Box */
+  .sg-box {
+    background: #F1F5F9;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 9.5px;
+    color: #334155;
+    line-height: 1.35;
+  }
+  .sg-title { font-weight: 700; color: #0F172A; margin-bottom: 2px; }
+
+  /* Service Card */
+  .service-card {
+    border-radius: 6px;
+    padding: 7px 9px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-left: 4px solid;
+  }
+  .service-title { font-size: 11px; font-weight: 800; }
+  .service-desc { font-size: 9.5px; opacity: 0.88; }
+
+  .srv-grafana { background: #EEF2FF; border-left-color: #6366F1; color: #3730A3; }
+  .srv-prom { background: #FFF7ED; border-left-color: #EA580C; color: #9A3412; }
+  .srv-loki { background: #FEFCE8; border-left-color: #CA8A04; color: #854D0E; }
+  .srv-tempo { background: #F5F3FF; border-left-color: #7C3AED; color: #5B21B6; }
+
+  .srv-nodeexp { background: #E0F2FE; border-left-color: #0284C7; color: #075985; }
+  .srv-cadvisor { background: #CCFBF1; border-left-color: #0D9488; color: #115E59; }
+
+  /* Storage Card */
+  .storage-card {
+    background: #F8FAFC;
+    border: 1px dashed #94A3B8;
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 9.5px;
+    color: #475569;
+    line-height: 1.3;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Hardening footer */
+  .hardening-badge {
+    background: #ECFDF5;
+    border: 1px solid #A7F3D0;
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 9px;
+    color: #065F46;
+    text-align: center;
+    font-weight: 600;
+    margin-top: auto;
+  }
+
+  /* Traffic Flows Section */
+  .flows-section {
+    background: #F8FAFC;
+    border: 1.5px solid #CBD5E1;
+    border-radius: 10px;
+    padding: 12px 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    font-size: 11px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+  }
+  .flow-group-title { font-weight: 800; color: #0F172A; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .flow-list { list-style: none; display: flex; flex-direction: column; gap: 4px; color: #334155; }
+  .flow-badge { font-weight: 700; padding: 1px 6px; border-radius: 4px; font-size: 10px; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="title">
+        <span>⚡ Grafana Observability Stack on AWS</span>
+      </div>
+      <div class="subtitle">
+        Production-Ready Architecture | 4 Dedicated Amazon Linux 2023 Instances | Multi-Tier Telemetry (Host, Docker & Engines)
+      </div>
+    </div>
+    <div class="badges">
+      <span class="badge badge-aws">AWS VPC 10.20.0.0/16</span>
+      <span class="badge badge-tf">Terraform IaC</span>
+      <span class="badge badge-docker">Docker Compose</span>
+    </div>
+  </div>
+
+  <!-- Diagram Body -->
+  <div class="diagram-body">
+    <!-- User / DevOps -->
+    <div class="user-container">
+      <div class="user-card">
+        <div class="user-icon">👨‍💻</div>
+        <div class="user-title">DevOps / User</div>
+        <div class="user-subtitle">Web Browser</div>
+        <div style="margin-top: 10px; font-size: 10px; font-weight: 700; color: #2563EB; background: #DBEAFE; border-radius: 4px; padding: 3px 6px;">
+          HTTP :3000
+        </div>
+      </div>
+    </div>
+
+    <!-- AWS Cloud -->
+    <div class="aws-cloud">
+      <div class="aws-cloud-header">
+        ☁️ AWS Cloud Region: us-east-1
+      </div>
+
+      <!-- VPC -->
+      <div class="vpc-container">
+        <div class="igw-bar">🌐 Internet Gateway (IGW) : 0.0.0.0/0</div>
+        <div class="vpc-header">
+          <span>🛡️ AWS VPC: 10.20.0.0/16 (DNS Hostnames & Support Enabled)</span>
+          <span style="font-size: 10px; color: #3B82F6; font-weight: 600;">Least-Privilege Security Group Mesh</span>
+        </div>
+
+        <!-- Subnet -->
+        <div class="subnet-container">
+          <div class="subnet-header">
+            <span>📦 Public Subnet: 10.20.10.0/24 (Route Table: 0.0.0.0/0 ➔ IGW)</span>
+            <span style="font-size: 10px; color: #16A34A; font-weight: 600;">Deterministic IPs via cidrhost</span>
+          </div>
+
+          <!-- Nodes Grid -->
+          <div class="nodes-grid">
+            <!-- Node 1: Grafana -->
+            <div class="node-card">
+              <div class="node-header">
+                <div class="node-name">🖥️ EC2: Grafana</div>
+                <div class="node-meta">t3.small | 10.20.10.13</div>
+              </div>
+              <div class="sg-box">
+                <div class="sg-title">🔒 SG: grafana</div>
+                • Ingress :3000 (Allowed CIDRs)<br>
+                • Ingress :3000, :8080, :9100 (Prometheus SG)
+              </div>
+              <div class="service-card srv-grafana">
+                <div class="service-title">Grafana v11.5.2</div>
+                <div class="service-desc">Port: 3000 | UI & /metrics<br>Auto-provisioned Datasources</div>
+              </div>
+              <div class="service-card srv-nodeexp">
+                <div class="service-title">Node Exporter v1.9.0</div>
+                <div class="service-desc">Port: 9100 | Host OS Telemetry</div>
+              </div>
+              <div class="service-card srv-cadvisor">
+                <div class="service-title">cAdvisor v0.49.2</div>
+                <div class="service-desc">Port: 8080 | Container Metrics</div>
+              </div>
+              <div class="storage-card">
+                💾 <div><b>gp3 EBS (20 GB)</b><br>/opt/observability/data (UID: 472)</div>
+              </div>
+              <div class="hardening-badge">
+                🛡️ IMDSv2 + AWS SSM Managed
+              </div>
+            </div>
+
+            <!-- Node 2: Prometheus -->
+            <div class="node-card">
+              <div class="node-header">
+                <div class="node-name">🔥 EC2: Prometheus</div>
+                <div class="node-meta">t3.small | 10.20.10.10</div>
+              </div>
+              <div class="sg-box">
+                <div class="sg-title">🔒 SG: prometheus</div>
+                • Ingress :9090 (Grafana SG Only)<br>
+                • Egress :8080, :9100, :3000, :3100, :3200
+              </div>
+              <div class="service-card srv-prom">
+                <div class="service-title">Prometheus v3.2.1</div>
+                <div class="service-desc">Port: 9090 | TSDB Engine (15d)<br>Cross-Scrapes All 4 Nodes</div>
+              </div>
+              <div class="service-card srv-nodeexp">
+                <div class="service-title">Node Exporter v1.9.0</div>
+                <div class="service-desc">Port: 9100 | Host OS Telemetry</div>
+              </div>
+              <div class="service-card srv-cadvisor">
+                <div class="service-title">cAdvisor v0.49.2</div>
+                <div class="service-desc">Port: 8080 | Container Metrics</div>
+              </div>
+              <div class="storage-card">
+                💾 <div><b>gp3 EBS (30 GB)</b><br>/opt/observability/data (UID: 65534)</div>
+              </div>
+              <div class="hardening-badge">
+                🛡️ IMDSv2 + AWS SSM Managed
+              </div>
+            </div>
+
+            <!-- Node 3: Loki -->
+            <div class="node-card">
+              <div class="node-header">
+                <div class="node-name">📜 EC2: Loki</div>
+                <div class="node-meta">t3.small | 10.20.10.11</div>
+              </div>
+              <div class="sg-box">
+                <div class="sg-title">🔒 SG: loki</div>
+                • Ingress :3100 (Grafana SG)<br>
+                • Ingress :3100, :8080, :9100 (Prometheus SG)
+              </div>
+              <div class="service-card srv-loki">
+                <div class="service-title">Loki v3.4.2</div>
+                <div class="service-desc">Port: 3100 | LogQL Engine<br>TSDB v13 Schema Storage</div>
+              </div>
+              <div class="service-card srv-nodeexp">
+                <div class="service-title">Node Exporter v1.9.0</div>
+                <div class="service-desc">Port: 9100 | Host OS Telemetry</div>
+              </div>
+              <div class="service-card srv-cadvisor">
+                <div class="service-title">cAdvisor v0.49.2</div>
+                <div class="service-desc">Port: 8080 | Container Metrics</div>
+              </div>
+              <div class="storage-card">
+                💾 <div><b>gp3 EBS (30 GB)</b><br>/opt/observability/data (UID: 10001)</div>
+              </div>
+              <div class="hardening-badge">
+                🛡️ IMDSv2 + AWS SSM Managed
+              </div>
+            </div>
+
+            <!-- Node 4: Tempo -->
+            <div class="node-card">
+              <div class="node-header">
+                <div class="node-name">🔍 EC2: Tempo</div>
+                <div class="node-meta">t3.small | 10.20.10.12</div>
+              </div>
+              <div class="sg-box">
+                <div class="sg-title">🔒 SG: tempo</div>
+                • Ingress :3200 (Grafana SG)<br>
+                • Ingress :3200, :8080, :9100 (Prometheus SG)
+              </div>
+              <div class="service-card srv-tempo">
+                <div class="service-title">Tempo v2.7.1</div>
+                <div class="service-desc">Port: 3200 (Query) / 4317-18 (OTLP)<br>Distributed Tracing Engine</div>
+              </div>
+              <div class="service-card srv-nodeexp">
+                <div class="service-title">Node Exporter v1.9.0</div>
+                <div class="service-desc">Port: 9100 | Host OS Telemetry</div>
+              </div>
+              <div class="service-card srv-cadvisor">
+                <div class="service-title">cAdvisor v0.49.2</div>
+                <div class="service-desc">Port: 8080 | Container Metrics</div>
+              </div>
+              <div class="storage-card">
+                💾 <div><b>gp3 EBS (30 GB)</b><br>/opt/observability/data (UID: 10001)</div>
+              </div>
+              <div class="hardening-badge">
+                🛡️ IMDSv2 + AWS SSM Managed
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Traffic Flows & Communication Matrix (Natural Footer) -->
+  <div class="flows-section">
+    <div>
+      <div class="flow-group-title">📊 Grafana Datasources & Query Traffic (Internal Private Network)</div>
+      <ul class="flow-list">
+        <li><span class="flow-badge" style="background:#FFF7ED; color:#EA580C; border:1px solid #EA580C;">Prometheus</span> ➔ <code>http://10.20.10.10:9090</code> (Default Datasource, Service Map)</li>
+        <li><span class="flow-badge" style="background:#FEFCE8; color:#CA8A04; border:1px solid #CA8A04;">Loki</span> ➔ <code>http://10.20.10.11:3100</code> (LogQL Logs Datasource)</li>
+        <li><span class="flow-badge" style="background:#F5F3FF; color:#7C3AED; border:1px solid #7C3AED;">Tempo</span> ➔ <code>http://10.20.10.12:3200</code> (TraceQL Traces Datasource &amp; Traces to Logs)</li>
+      </ul>
+    </div>
+    <div>
+      <div class="flow-group-title">🎯 Prometheus Cross-Node Scrape Matrix (3-Tier Observability)</div>
+      <ul class="flow-list">
+        <li><span class="flow-badge" style="background:#E0F2FE; color:#0284C7; border:1px solid #0284C7;">Host / OS (:9100)</span> ➔ Scrapes Node Exporter on <code>10.20.10.10</code>, <code>10.20.10.11</code>, <code>10.20.10.12</code>, <code>10.20.10.13</code></li>
+        <li><span class="flow-badge" style="background:#CCFBF1; color:#0D9488; border:1px solid #0D9488;">Docker (:8080)</span> ➔ Scrapes cAdvisor on <code>10.20.10.10</code>, <code>10.20.10.11</code>, <code>10.20.10.12</code>, <code>10.20.10.13</code></li>
+        <li><span class="flow-badge" style="background:#EDE9FE; color:#6D28D9; border:1px solid #6D28D9;">App Engines</span> ➔ Scrapes <code>:9090</code> (Prometheus), <code>:3100</code> (Loki), <code>:3200</code> (Tempo), <code>:3000</code> (Grafana)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</body>
+</html>
