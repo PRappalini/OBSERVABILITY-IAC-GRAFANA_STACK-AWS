@@ -1,0 +1,78 @@
+site_name: Grafana Observability Stack on AWS
+site_description: Production-ready Infrastructure as Code (Terraform) for a 4-pillar Grafana Observability Stack on AWS EC2.
+site_author: PRappalini
+site_url: https://prappalini.github.io/OBSERVABILITY-IAC-GRAFANA_STACK-AWS/
+repo_url: https://github.com/PRappalini/OBSERVABILITY-IAC-GRAFANA_STACK-AWS
+repo_name: PRappalini/OBSERVABILITY-IAC-GRAFANA_STACK-AWS
+
+theme:
+  name: material
+  language: en
+  palette:
+    # Light mode
+    - scheme: default
+      primary: slate
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - scheme: slate
+      primary: slate
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: Roboto Mono
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+  - Multi-Layer Telemetry: telemetry.md
+  - Security & Networking: security.md
+  - Deployment Guide: deployment.md
+  - Technical Reference: Internal-Documentation.md
