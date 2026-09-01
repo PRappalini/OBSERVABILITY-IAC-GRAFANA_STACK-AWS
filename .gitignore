@@ -39,7 +39,3 @@ site/
 # Python cache
 __pycache__/
 *.py[cod]
-
-# Auto-synced docs during MkDocs build
-/docs/Internal-Documentation.md
-
