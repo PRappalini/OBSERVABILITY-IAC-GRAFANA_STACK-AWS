@@ -6,9 +6,31 @@ scrape_configs:
   - job_name: prometheus
     static_configs:
       - targets: ["prometheus:9090"]
-  - job_name: node
+
+  - job_name: node-exporter
     static_configs:
-      - targets: ["node-exporter:9100"]
+      - targets:
+          - "node-exporter:9100"
+          - "LOKI_PRIVATE_IP:9100"
+          - "TEMPO_PRIVATE_IP:9100"
+          - "GRAFANA_PRIVATE_IP:9100"
+
   - job_name: cadvisor
     static_configs:
-      - targets: ["cadvisor:8080"]
+      - targets:
+          - "cadvisor:8080"
+          - "LOKI_PRIVATE_IP:8080"
+          - "TEMPO_PRIVATE_IP:8080"
+          - "GRAFANA_PRIVATE_IP:8080"
+
+  - job_name: loki
+    static_configs:
+      - targets: ["LOKI_PRIVATE_IP:3100"]
+
+  - job_name: tempo
+    static_configs:
+      - targets: ["TEMPO_PRIVATE_IP:3200"]
+
+  - job_name: grafana
+    static_configs:
+      - targets: ["GRAFANA_PRIVATE_IP:3000"]
