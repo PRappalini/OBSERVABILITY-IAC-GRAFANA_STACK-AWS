@@ -1,0 +1,23 @@
+/* Custom styles for MkDocs Material */
+:root {
+  --md-primary-fg-color: #0f172a;
+  --md-accent-fg-color: #6366f1;
+}
+
+.architecture-frame {
+  width: 100%;
+  height: 900px;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background-color: #0f172a;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: 4px;
+}
